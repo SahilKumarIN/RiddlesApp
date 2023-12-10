@@ -1,10 +1,10 @@
-import {  Pressable, StyleSheet, Text, View, useColorScheme } from 'react-native'
+import { Pressable, StyleSheet, Text, View, useColorScheme } from 'react-native'
 import React, { useEffect, useState } from 'react'
 
 export default function Main() {
     const isDarkMode = useColorScheme() === 'dark';
     const [showAnswer, setShowAnswer] = useState(false);
-    
+    const [errorMsg, setErrorMsg] = useState(false)
     const [riddle, setRiddle] = useState([]);
 
     useEffect(() => {
@@ -12,15 +12,22 @@ export default function Main() {
     }, [])
 
     const getRiddle = async () => {
-        const riddleData = await fetch('https://riddles-by-api-ninjas.p.rapidapi.com/v1/riddles', {
-            headers: {
-                'X-RapidAPI-Key': '431a83f16cmshc1c8504e4f64fabp1a6fc3jsn58010b788785',
-                'X-RapidAPI-Host': 'riddles-by-api-ninjas.p.rapidapi.com'
-            }
-        })
-        const parsedRiddle = await riddleData.json();
-        setRiddle(parsedRiddle[0])
-        setShowAnswer(false)
+        try {
+            const riddleData = await fetch('https://riddles-by-api-ninjas.p.rapidapi.com/v1/riddles', {
+                headers: {
+                    'X-RapidAPI-Key': '431a83f16cmshc1c8504e4f64fabp1a6fc3jsn58010b788785',
+                    'X-RapidAPI-Host': 'riddles-by-api-ninjas.p.rapidapi.com'
+                }
+            })
+            setErrorMsg(false)
+            const parsedRiddle = await riddleData.json();
+            setRiddle(parsedRiddle[0])
+            setShowAnswer(false)
+
+        } catch (error) {
+            setErrorMsg(true)
+        }
+
     }
 
     const handleShowAnswer = () => {
@@ -34,6 +41,8 @@ export default function Main() {
     }
 
     return (
+
+
         <View>
             <Text style={[isDarkMode ? styles.darkModeText : styles.lightModeText, styles.questionHeading]}>{riddle.title}</Text>
 
@@ -82,7 +91,8 @@ export default function Main() {
 
                     </View> : ""
             }
-        </View>
+        </View >
+
     )
 }
 
@@ -147,5 +157,27 @@ const styles = StyleSheet.create({
     answer: {
         textAlign: 'center'
     },
+    errorContainer: {
+        width: '80%',
+        alignSelf: 'center',
+        backgroundColor: '#ffcdd2',
+        borderRadius: 10,
+        marginVertical: 200,
+        padding: 10
+    },
+    errorText: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#f44336',
+        textAlign: 'center'
+    },
+    errBtnColor: {
+        backgroundColor: '#f48fb1',
+        borderWidth: 2,
+        borderColor: 'pink'
+    },
+    errTxtColor: {
+        color: '#f44336'
+    }
 
 })
